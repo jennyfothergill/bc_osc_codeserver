@@ -4,30 +4,22 @@
   }.map(&:name).grep(/^P./)
 -%>
 ---
-cluster: "pitzer"
+cluster: "borah"
 form:
-  - account
   - bc_num_hours
   - working_dir
   - version
+  - bc_queue
 attributes:
-  account:
-    label: "Project"
-    widget: select
-    options:
-      <%- groups.each do |group| %>
-      - "<%= group %>"
-    <%- end %>
   version:
     widget: "select"
     label: "Codeserver Version"
     options:
-      - ["4.8", "4.8.3"]
-      - ["3.9", "3.9.3"]
-
+      - ["4.19", "4.19.1"]
   working_dir:
     label: "Working Directory"
     data-filepicker: true
     data-target-file-type: dirs  # Valid values are: files, dirs, or both
     readonly: false
     help: "Select your project directory; defaults to $HOME"
+  bc_queue: ondemand
