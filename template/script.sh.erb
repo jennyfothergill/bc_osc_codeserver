@@ -1,17 +1,20 @@
 #!/usr/bin/bash -l
 <%
 
-# Set our working directory.
-working_dir = Pathname.new(context.working_dir)
+    gpu_queues = ['ondemand-p100', 'cryogars']
+    gpu = gpu_queues.include?(context.custom_queue) 
 
-code_server_version   = context.version
-
-# Ensure that code-server always starts up in either a user defined directory or the home directory.
-if ! working_dir.exist?
-    working_dir = Pathname.new(ENV['HOME'])
-elsif working_dir.file?
-    working_dir = working_dir.parent
-end
+    # Set our working directory.
+    working_dir = Pathname.new(context.working_dir)
+    
+    code_server_version = context.version
+    
+    # Ensure that code-server always starts up in either a user defined directory or the home directory.
+    if ! working_dir.exist?
+        working_dir = Pathname.new(ENV['HOME'])
+    elsif working_dir.file?
+        working_dir = working_dir.parent
+    end
 %>
 
 CODE_SERVER_DATAROOT="$HOME/.local/share/code-server"
@@ -25,6 +28,7 @@ echo "$(date): Running on compute node ${compute_node}:$port"
 
 # VSCode complains that system git is too old.
 module load code-server/<%= code_server_version %>
+module li
 
 CPP_FILE="<%= working_dir.to_s %>/.vscode/c_cpp_properties.json"
 
@@ -46,14 +50,29 @@ if [[ -f "$CPP_FILE" ]]; then
 #
 # Start Code Server.
 #
-echo "$(date): Started code-server"
-echo ""
 
-code-server \
-    --auth=none \
-    --bind-addr="0.0.0.0:${port}" \
-    --disable-telemetry \
-    --ignore-last-opened \
-    --user-data-dir="$CODE_SERVER_DATAROOT" \
-    --log debug \
-    "<%= working_dir.to_s %>"
+<%- if gpu -%>
+    echo "$(date): Starting code-server with nv bind"
+    echo ""
+    export SINGULARITYENV_LD_LIBRARY_PATH=/cm/local/apps/cuda/libs/current/lib64
+    apptainer exec --nv ${container} \
+        code-server \
+        --auth=none \
+        --bind-addr="0.0.0.0:${port}" \
+        --disable-telemetry \
+        --ignore-last-opened \
+        --user-data-dir="$CODE_SERVER_DATAROOT" \
+        --log debug \
+        "<%= working_dir.to_s %>"
+<%- else -%>
+    echo "$(date): Starting code-server"
+    echo ""
+    code-server \
+        --auth=none \
+        --bind-addr="0.0.0.0:${port}" \
+        --disable-telemetry \
+        --ignore-last-opened \
+        --user-data-dir="$CODE_SERVER_DATAROOT" \
+        --log debug \
+        "<%= working_dir.to_s %>"
+<%- end -%>
