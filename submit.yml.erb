@@ -1,3 +1,29 @@
+<%-
+  nodes = bc_num_slots.blank? ? 1 : bc_num_slots.to_i
+
+  case custom_queue
+  when "ondemand-p100"
+    slurm_args = [
+      "--nodes", "#{nodes}",
+      "--ntasks-per-node", "14",
+      "--gpus-per-node", "1",
+      "--partition", "ondemand-p100"
+    ]
+  when "cryogars"
+    slurm_args = [
+      "--nodes", "#{nodes}",
+      "--ntasks-per-node", "32",
+      "--gpus-per-node", "1",
+      "--partition", "cryogars"
+    ]
+  else
+    slurm_args = [
+      "--nodes", "#{nodes}",
+      "--ntasks-per-node", "4",
+      "--partition", "ondemand"
+    ]
+  end
+%>
 ---
 batch_connect:
   template: "basic"
@@ -5,4 +31,7 @@ batch_connect:
     - code_server_version
 script:
   native:
+  <%- slurm_args.each do |arg| %>
+    - "<%= arg %>"
+  <%- end %>
     - "-J VSCode"
