@@ -54,7 +54,6 @@ if [[ -f "$CPP_FILE" ]]; then
 <%- if gpu -%>
     echo "$(date): Starting code-server with nv bind"
     echo ""
-    export SINGULARITYENV_LD_LIBRARY_PATH=/cm/local/apps/cuda/libs/current/lib64
     apptainer exec --nv ${container} \
         code-server \
         --auth=none \
