@@ -1,7 +1,7 @@
 #!/usr/bin/bash -l
 <%
 
-    gpu_queues = ['ondemand-p100', 'cryogars']
+    gpu_queues = ['ondemand-p100', 'cryogars', 'classroomgpu']
     gpu = gpu_queues.include?(context.custom_queue) 
 
     # Set our working directory.
