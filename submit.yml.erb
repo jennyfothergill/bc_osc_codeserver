@@ -5,30 +5,30 @@
   when "ondemand-p100"
     slurm_args = [
       "--nodes", "#{nodes}",
-      "--ntasks-per-node", "14",
-      "--gpus-per-node", "1",
+      "-c", "#{num_cores}",
       "--partition", "ondemand-p100"
     ]
   when "classroomgpu"
     slurm_args = [
       "--nodes", "#{nodes}",
-      "--ntasks-per-node", "14",
-      "--gpus-per-node", "1",
+      "-c", "#{num_cores}",
       "--partition", "classroomgpu"
     ]
   when "cryogars"
     slurm_args = [
       "--nodes", "#{nodes}",
-      "--ntasks-per-node", "32",
-      "--gpus-per-node", "1",
+      "-c", "#{num_cores}",
       "--partition", "cryogars"
     ]
   else
     slurm_args = [
       "--nodes", "#{nodes}",
-      "--ntasks-per-node", "4",
+      "-c", "#{num_cores}",
       "--partition", "ondemand"
     ]
+  end
+  if enable_gpu == "1"
+    slurm_args += ["--gpus-per-node", "1"]
   end
 %>
 ---

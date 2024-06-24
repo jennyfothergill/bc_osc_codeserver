@@ -1,8 +1,7 @@
 #!/usr/bin/bash -l
 <%
 
-    gpu_queues = ['ondemand-p100', 'cryogars', 'classroomgpu']
-    gpu = gpu_queues.include?(context.custom_queue) 
+    gpu = context.enable_gpu == "1"
 
     # Set our working directory.
     working_dir = Pathname.new(context.working_dir)
