@@ -9,6 +9,8 @@ begin
     # Create a partitions array to dynamically populate the queues associated
     # with the user
     partitions = []
+    pmaxcores = []
+    phasgpu = []
     # Store the output, error, status
     output, status = Open3.capture2('bash', stdin_data: script)
     # puts status
@@ -16,11 +18,16 @@ begin
         # Add it to the custom_envs array by splitting the output at '\n'.
         output.split("\n").each do |queue|
             if oodqueues.include?(queue)
+                qindex = oodqueues.index(queue)
                 queue = queue.gsub("*", "")
                 partitions.push(queue)
+                pmaxcores.push(maxcores[qindex])
+                phasgpu.push(hasgpu[qindex])
             end
         end
         puts partitions
+        puts pmaxcores
+        puts phasgpu
     else
         partition_error = "Error"
     end
@@ -86,7 +93,7 @@ attributes:
       support!</div>
     <%- else -%>
     options:
-    <%- partitions.zip(maxcores,hasgpu).each do |q, maxcore, gpu| -%>
+    <%- partitions.zip(pmaxcores,phasgpu).each do |q, maxcore, gpu| -%>
         - [
             "<%= q %>", "<%= q %>",
             data-max-num-cores: <%= maxcore %>,
